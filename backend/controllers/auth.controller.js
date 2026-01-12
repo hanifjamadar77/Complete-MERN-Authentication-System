@@ -1,7 +1,11 @@
 import {User} from "../model/user.model.js";
 import bcryptjs from "bcryptjs";
+import crypto from "crypto";
+import dotenv from "dotenv";
+dotenv.config();
+
 import { generateJWTTokenandSetCookie } from "../utils/generateJWTTokenandSetCookie.js";
-import { sendVerificationEmail,sendWelcomeEmail } from "../mailtrap/email.js";
+import { sendVerificationEmail,sendWelcomeEmail, sendPasswordResetEmail } from "../mailtrap/email.js";
 
 export const signUp = async (req, res) => {
     const {name, email, password} = req.body;
@@ -79,10 +83,65 @@ export const verifyEmail = async (req, res) =>{
 }
 
 export const logIn = async (req, res) => {
-    res.send("LogIn Up Route");
+    const{email, password} = req.body;
+
+    try {
+        const user = await User.findOne({email});
+        if(!user){
+           return res.status(404).json({success: false , message:"Invalid Crendentials"})
+        }
+
+        const isPasswordValid = await bcryptjs.compare(password, user.password);
+        if(!isPasswordValid){
+           return res.status(400).json({success: false, message : "Invalid Crendentials"});
+        }
+
+        generateJWTTokenandSetCookie(res, user._id);
+
+        user.lastLogin = new Date();
+        await user.save();
+
+        res.status(200).json({
+            success : true,
+            message : "Login successfully",
+            user :{
+                ...user._doc,
+                password: undefined,
+            }
+        })
+    } catch (error) {
+        throw res.status(400).json({success: false, message : error.message})
+    }
 }
 
 export const logOut = async (req, res) => {
     res.clearCookie("token");
     res.status(200).json({success : true, message : "Logged out successfully"});
+}
+
+export const forgetPassword = async (req, res) => {
+    const{email} = req.body;
+
+    try {
+        const user = await User.findOne({email});
+        if(!user){
+            return res.status(404).json({success:false, message:"User not found"});
+        }
+
+        // genetate the reset token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+        const resetTokenExpires = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordTokenExpires = resetTokenExpires;
+
+        await user.save();
+
+        // reset Password
+        await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
+
+        res.status(200).json({success:true, message:`Password reset email sent to ${user.email}`});
+    } catch (error) {
+        res.status(500).json({success:false, message:error.message});
+    }
 }
