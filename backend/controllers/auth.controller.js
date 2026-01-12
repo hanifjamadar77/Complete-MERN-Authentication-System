@@ -83,5 +83,6 @@ export const logIn = async (req, res) => {
 }
 
 export const logOut = async (req, res) => {
-    res.send("LogOut Up Route");
+    res.clearCookie("token");
+    res.status(200).json({success : true, message : "Logged out successfully"});
 }
