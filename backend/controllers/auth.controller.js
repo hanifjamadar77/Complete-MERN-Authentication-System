@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { generateJWTTokenandSetCookie } from "../utils/generateJWTTokenandSetCookie.js";
-import { sendVerificationEmail,sendWelcomeEmail, sendPasswordResetEmail } from "../mailtrap/email.js";
+import { sendVerificationEmail,sendWelcomeEmail, sendPasswordResetEmail, setResetSuccessEmail } from "../mailtrap/email.js";
 
 export const signUp = async (req, res) => {
     const {name, email, password} = req.body;
@@ -142,6 +142,38 @@ export const forgetPassword = async (req, res) => {
 
         res.status(200).json({success:true, message:`Password reset email sent to ${user.email}`});
     } catch (error) {
+        res.status(500).json({success:false, message:error.message});
+    }
+}
+
+export const resetPassword = async(req, res) =>{
+    try {
+        const {token} = req.params; 
+        const {password} = req.body;
+
+        const user = await User.findOne({
+            resetPasswordToken : token,
+            resetPasswordTokenExpires : {$gt : Date.now()}
+        });
+        
+        if(!user){
+            return res.status(400).json({success:false, message:"Invalid or expired password reset token"});
+        }
+
+        const hashedPassword = await bcryptjs.hash(password, 10);
+
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordTokenExpires = undefined;
+
+        await user.save();
+
+        await setResetSuccessEmail(user.email);
+
+        console.log("Password reset successfully");
+        res.status(200).json({success:true, message:"Password reset successfully"});
+    } catch (error) {
+        console.log(error)
         res.status(500).json({success:false, message:error.message});
     }
 }
