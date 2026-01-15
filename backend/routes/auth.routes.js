@@ -13,7 +13,7 @@ router.post('/logout', logOut);
 
 router.post('/verify-email', verifyEmail);
 
-router.post('/forget-password', forgetPassword);
+router.post('/forgot-password', forgetPassword);
 
 router.post('/reset-password/:token', resetPassword);
 

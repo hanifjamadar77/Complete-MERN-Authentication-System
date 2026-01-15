@@ -8,7 +8,9 @@ import Home from "./pages/HomePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import VerifyEmail from "./pages/VerifyEmailPage.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
 import { useEffect } from "react";
 
@@ -97,7 +99,17 @@ function App() {
           }
         ></Route>
         <Route path="/verify-email" element={<VerifyEmail />}></Route>
+        <Route path="/forgot-password" element={
+          <RedirectAuthenticatedUser>
+              <ForgotPasswordPage />
+          </RedirectAuthenticatedUser>}></Route>
+
+          <Route path="/reset-password/:token" element = {
+            <RedirectAuthenticatedUser>
+              <ResetPasswordPage />
+          </RedirectAuthenticatedUser>}></Route>
       </Routes>
+
 
       <Toaster />
     </div>

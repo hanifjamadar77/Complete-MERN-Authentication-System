@@ -40,7 +40,7 @@ export const sendWelcomeEmail = async (email, name) =>{
 
     } catch (error) {
         console.error("Error sending welcome email:", error);
-        throw res.status(500).json({success:false, message:`Failed to send welcome email to ${email}`});
+        throw new Error(`Failed to send welcome email to ${email}`);
     }
 }
 
@@ -55,9 +55,10 @@ export const sendPasswordResetEmail = async (email, resetLink) =>{
             html : PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetLink}", resetLink),
             category : "Password Reset"
         })
+        console.log("Password reset email sent:", response);
     } catch (error) {
         console.error("Error sending password reset email:", error);
-        throw new Error(`Failed to send password reset email to ${email}`);
+        throw new Error(`Failed to send password reset email to ${email}: ${error.message}`);
     }
 }
 
