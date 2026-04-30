@@ -84,6 +84,9 @@ Frontend → http://localhost:5173
 Backend  → http://localhost:5000
 ```
 ### Screenshots
-<img width="400" height="400" alt="signup" src="https://github.com/user-attachments/assets/d36a8225-7cf4-4364-ae95-649149d7ae8c" /> <img width="400" height="400" alt="login" src="https://github.com/user-attachments/assets/c296633c-f511-40be-b7c6-f033a441c62f" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d36a8225-7cf4-4364-ae95-649149d7ae8c" width="400"/>
+  <img src="https://github.com/user-attachments/assets/c296633c-f511-40be-b7c6-f033a441c62f" width="400"/>
+</p>
 
 ---
